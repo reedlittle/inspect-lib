@@ -1,0 +1,41 @@
+#!/bin/bash -f
+
+echo " "
+echo "			INSPECTING" $1 "LIBRARY"
+echo " "
+
+	## start with a clean slate
+rm -f lib.1 lib.2 lib.3 lib.4 used not-used
+
+	## get raw symbols info
+nm $1 > lib.1
+
+	## clean up asymbols info to include only symbol names and types
+vi lib.1 -c ':g/\.o/d' -c ':g/^$/d' -c ':%s/^.................//' -c ':w lib.2' -c 'q'
+
+	## now reduce symbols info to only one line for each type/synbol pair
+sort lib.2 | uniq | sort --key=2 --key=1 > lib.3
+
+	## now make it an s-express for input to lisp
+vi lib.3 -c ':%s/ / "/|:%s/$/"/' -c ':%s/^/( /|:%s/$/ )/' -c ':w lib.4' -c 'q'
+ed lib.4 &> /dev/null <<END
+0a
+(
+.
+$
+a
+)
+.
+w
+q
+END
+
+	## sort into symbols used by the library and symbols not used by the library
+clisp inspect-lib.lsp 
+
+	## cleanup output files (remove all douoble quotes)
+vi used -c ':%s/\"//g' -c ':wq'
+vi not-used -c ':%s/\"//g' -c ':wq'
+
+rm -f lib.1 lib.2 lib.3 lib.4 
+

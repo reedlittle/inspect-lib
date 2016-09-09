@@ -1,0 +1,18 @@
+
+Name
+        inspect-lib - determine which defined externals are used by a library defining
+        those externals
+
+Synopsis
+        inspect-lib library
+
+Description
+	Program inspects a library and determines which externals defined in the library
+	are used by the library itself.  Produces two output files in current directory:
+		used - contains externals defined and used by the library
+		not-used - contains externals defined and NOT used by the library
+
+Notes
+	There is no checking of argument (e.g., present or not present, whether or not it
+	is a legitimate library, more than one argument, etc.).
+
